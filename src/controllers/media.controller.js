@@ -1,4 +1,17 @@
-import { uploadMultipleFiles } from '../services/media.service.js'
+import { getMediaById, uploadMultipleFiles } from '../services/media.service.js'
+
+export const getMedia = async (req, res) => {
+  try {
+    const { id } = req.params
+    const media = await getMediaById(id)
+
+    if (!media) return res.status(404).json({ error: 'Media not found' })
+
+    res.status(200).json(media)
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Internal Server Error' })
+  }
+}
 
 export const uploadFiles = async (req, res) => {
   try {

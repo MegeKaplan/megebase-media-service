@@ -1,6 +1,10 @@
 import { nanoid } from 'nanoid'
 import { uploadToStorage } from '../storage/index.js'
-import { saveMedia } from '../repositories/media.repository.js'
+import { findMediaById, saveMedia } from '../repositories/media.repository.js'
+
+export const getMediaById = async (id) => {
+  return await findMediaById(id)
+}
 
 export const uploadMultipleFiles = async (files, userId) => {
   const uploadedMedia = []
@@ -20,9 +24,8 @@ export const uploadMultipleFiles = async (files, userId) => {
     }
 
     const savedMedia = await saveMedia(mediaData)
-    console.log(savedMedia);
 
-    uploadedMedia.push(mediaData)
+    uploadedMedia.push(savedMedia)
   }
 
   return uploadedMedia
