@@ -1,6 +1,7 @@
 import { nanoid } from 'nanoid'
 import { uploadToStorage } from '../storage/index.js'
 import { findMediaById, saveMedia } from '../repositories/media.repository.js'
+import { generateSignedUrl } from '../storage/minio.js'
 
 export const getMediaById = async (id) => {
   return await findMediaById(id)
@@ -25,7 +26,9 @@ export const uploadMultipleFiles = async (files, userId) => {
 
     const savedMedia = await saveMedia(mediaData)
 
-    uploadedMedia.push(savedMedia)
+    const signedUrl = await generateSignedUrl(savedMedia._id)
+
+    uploadedMedia.push({...savedMedia.toObject(), url: signedUrl});
   }
 
   return uploadedMedia

@@ -1,4 +1,5 @@
 import { getMediaById, uploadMultipleFiles } from '../services/media.service.js'
+import { generateSignedUrl } from '../storage/minio.js'
 
 export const getMedia = async (req, res) => {
   try {
@@ -6,6 +7,10 @@ export const getMedia = async (req, res) => {
     const media = await getMediaById(id)
 
     if (!media) return res.status(404).json({ error: 'Media not found' })
+
+    const signedUrl = await generateSignedUrl(media._id)
+
+    media.url = signedUrl
 
     res.status(200).json(media)
   } catch (error) {

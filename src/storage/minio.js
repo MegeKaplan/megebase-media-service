@@ -27,7 +27,7 @@ export const createBucketIfNotExists = async () => {
   const bucketExists = await minioClient.bucketExists(env.MINIO_BUCKET_NAME)
   if (!bucketExists) {
     await minioClient.makeBucket(env.MINIO_BUCKET_NAME)
-    await minioClient.setBucketPolicy(env.MINIO_BUCKET_NAME, createPublicReadPolicy(env.MINIO_BUCKET_NAME))
+    await minioClient.setBucketPolicy(env.MINIO_BUCKET_NAME)
   }
 }
 
@@ -36,6 +36,11 @@ export const uploadToMinio = async (file, objectName, bucketName = env.MINIO_BUC
     'Content-Type': file.mimetype,
   })
   return `${env.MINIO_PUBLIC_URL}/${bucketName}/${objectName}`
+}
+
+export const generateSignedUrl = async (objectName, expirySeconds = 300, bucketName = env.MINIO_BUCKET_NAME) => {
+  const url = await minioClient.presignedGetObject(bucketName, objectName, expirySeconds)
+  return url
 }
 
 export const initMinio = async () => {
