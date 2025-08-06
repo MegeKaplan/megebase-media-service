@@ -7,6 +7,7 @@ const mediaSchema = new mongoose.Schema({
   originalname: { type: String },
   mimetype: { type: String },
   size: { type: Number },
+  blurhash: { type: String },
 }, {
   timestamps: true,
   versionKey: false,
