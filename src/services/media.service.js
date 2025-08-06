@@ -1,27 +1,22 @@
 import { nanoid } from 'nanoid'
-import { uploadToMinio } from '../storage/minio.js'
+import { uploadToStorage } from '../storage/index.js'
 
-export const uploadMultipleFiles = async (files) => {
-  const uploaded = []
+export const uploadMultipleFiles = async (files, userId) => {
+  const uploadedMedia = []
 
   for (const file of files) {
     const id = nanoid()
-    await uploadToMinio(file, id).then((url) => {
-      uploaded.push({
-        id,
-        url,
-        originalname: file.originalname,
-        mimetype: file.mimetype,
-        size: file.size,
-        createdAt: new Date(),
-        updatedAt: new Date(),
-      })
-      return url
-    }).catch((error) => {
-      console.error(`Error uploading file ${file.originalname}:`, error)
-      throw error
-    })
+
+    const url = await uploadToStorage(file, id)
+
+    const mediaData = {
+      _id: id,
+      url,
+      uploadedBy: userId,
+    }
+
+    uploadedMedia.push(mediaData)
   }
 
-  return uploaded
+  return uploadedMedia
 }

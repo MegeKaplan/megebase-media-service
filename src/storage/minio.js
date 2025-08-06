@@ -9,41 +9,35 @@ export const minioClient = new Client({
   secretKey: env.MINIO_SECRET_KEY,
 })
 
-const publicReadPolicy = {
-  Version: "2012-10-17",
-  Statement: [
-    {
-      Effect: "Allow",
-      Principal: { AWS: ["*"] },
-      Action: ["s3:GetObject"],
-      Resource: [`arn:aws:s3:::${env.MINIO_BUCKET_NAME}/*`],
-    },
-  ],
+const createPublicReadPolicy = (bucketName) => {
+  return JSON.stringify({
+    Version: "2012-10-17",
+    Statement: [
+      {
+        Effect: "Allow",
+        Principal: { AWS: ["*"] },
+        Action: ["s3:GetObject"],
+        Resource: [`arn:aws:s3:::${bucketName}/*`],
+      },
+    ],
+  })
 }
 
 export const createBucketIfNotExists = async () => {
   const bucketExists = await minioClient.bucketExists(env.MINIO_BUCKET_NAME)
   if (!bucketExists) {
     await minioClient.makeBucket(env.MINIO_BUCKET_NAME)
-    await minioClient.setBucketPolicy(env.MINIO_BUCKET_NAME, JSON.stringify(publicReadPolicy))
-    console.log(`Bucket "${env.MINIO_BUCKET_NAME}" created and public read policy set.`)
-  } else {
-    console.log(`Bucket "${env.MINIO_BUCKET_NAME}" found, skipping creation.`)
+    await minioClient.setBucketPolicy(env.MINIO_BUCKET_NAME, createPublicReadPolicy(env.MINIO_BUCKET_NAME))
   }
 }
 
-export const uploadToMinio = async (file, objectName, bucketName = env.MINIO_BUCKET_NAME, ) => {
-  try {
-    await minioClient.putObject(bucketName, objectName, file.buffer, {
-      'Content-Type': file.mimetype,
-    })
-    return `${env.MINIO_PUBLIC_URL}/${bucketName}/${objectName}`
-  } catch (error) {
-    console.error('Error uploading to MinIO:', error)
-    throw error
-  }
+export const uploadToMinio = async (file, objectName, bucketName = env.MINIO_BUCKET_NAME) => {
+  await minioClient.putObject(bucketName, objectName, file.buffer, {
+    'Content-Type': file.mimetype,
+  })
+  return `${env.MINIO_PUBLIC_URL}/${bucketName}/${objectName}`
 }
 
-createBucketIfNotExists().catch(err => {
-  console.error('Error creating bucket:', err)
-})
+export const initMinio = async () => {
+  await createBucketIfNotExists()
+}
