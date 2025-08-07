@@ -3,6 +3,7 @@ import { uploadToStorage } from '../storage/index.js'
 import { findMediaById, saveMedia } from '../repositories/media.repository.js'
 import { generateSignedUrl } from '../storage/minio.js'
 import { generateBlurhash } from '../utils/blurhash.js'
+import { publishMessage } from '../messaging/rabbitmq.js'
 
 export const getMediaById = async (clientId, mediaId) => {
   const media = await findMediaById(mediaId)
@@ -31,11 +32,22 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
       mimetype: file.mimetype,
       size: file.size,
       blurhash,
+      status: 'pending',
+      clientId,
     }
 
     const savedMedia = await saveMedia(mediaData)
 
     const signedUrl = await generateSignedUrl(clientId, savedMedia._id)
+
+    publishMessage('media', 'file', 'uploaded', {
+      clientId,
+      mediaId: savedMedia._id,
+      uploadedBy: userId,
+      mimetype: file.mimetype,
+      size: file.size,
+      timestamp: Date.now(),
+    })
 
     uploadedMedia.push({ ...savedMedia.toObject(), url: signedUrl })
   }

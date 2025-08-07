@@ -16,4 +16,7 @@ export const env = {
 
   // MongoDB
   MONGO_URI: process.env.MONGO_URI || 'mongodb://localhost:27017/megebase',
+
+  // RabbitMQ
+  RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost',
 }
