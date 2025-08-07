@@ -4,8 +4,13 @@ import { findMediaById, saveMedia } from '../repositories/media.repository.js'
 import { generateSignedUrl } from '../storage/minio.js'
 import { generateBlurhash } from '../utils/blurhash.js'
 
-export const getMediaById = async (id) => {
-  return await findMediaById(id)
+export const getMediaById = async (clientId, mediaId) => {
+  const media = await findMediaById(mediaId)
+  if (!media) return null
+  const signedUrl = await generateSignedUrl(clientId, mediaId)
+  if (!signedUrl) return null
+  media.url = signedUrl
+  return media
 }
 
 export const uploadMultipleFiles = async (clientId, files, userId) => {
