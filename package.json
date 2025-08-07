@@ -9,6 +9,7 @@
     "blurhash": "^2.0.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
+    "mime-types": "^3.0.1",
     "minio": "^8.0.5",
     "mongoose": "^8.17.0",
     "multer": "^2.0.2",

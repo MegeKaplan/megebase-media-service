@@ -4,13 +4,19 @@ import { findMediaById, saveMedia } from '../repositories/media.repository.js'
 import { generateSignedUrl } from '../storage/minio.js'
 import { generateBlurhash } from '../utils/blurhash.js'
 import { publishMessage } from '../messaging/rabbitmq.js'
+import { generateObjectName } from '../utils/file.js'
 
 export const getMediaById = async (clientId, mediaId) => {
   const media = await findMediaById(mediaId)
   if (!media) return null
-  const signedUrl = await generateSignedUrl(clientId, mediaId)
+
+  const objectName = generateObjectName(media._id, media.mimetype)
+
+  const signedUrl = await generateSignedUrl(clientId, objectName)
   if (!signedUrl) return null
+
   media.url = signedUrl
+
   return media
 }
 
@@ -20,7 +26,9 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
   for (const file of files) {
     const id = nanoid()
 
-    const url = await uploadToStorage(clientId, file, id)
+    const objectName = generateObjectName(id, file.mimetype)
+
+    const url = await uploadToStorage(clientId, file, objectName)
 
     const blurhash = file.mimetype.startsWith('image/') ? await generateBlurhash(file.buffer) : null
 
@@ -38,11 +46,12 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
 
     const savedMedia = await saveMedia(mediaData)
 
-    const signedUrl = await generateSignedUrl(clientId, savedMedia._id)
+    const signedUrl = await generateSignedUrl(clientId, objectName)
 
     publishMessage('media', 'file', 'uploaded', {
       clientId,
       mediaId: savedMedia._id,
+      objectName,
       uploadedBy: userId,
       mimetype: file.mimetype,
       size: file.size,
