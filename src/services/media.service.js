@@ -8,13 +8,13 @@ export const getMediaById = async (id) => {
   return await findMediaById(id)
 }
 
-export const uploadMultipleFiles = async (files, userId) => {
+export const uploadMultipleFiles = async (clientId, files, userId) => {
   const uploadedMedia = []
 
   for (const file of files) {
     const id = nanoid()
 
-    const url = await uploadToStorage(file, id)
+    const url = await uploadToStorage(clientId, file, id)
 
     const blurhash = file.mimetype.startsWith('image/') ? await generateBlurhash(file.buffer) : null
 
@@ -30,7 +30,7 @@ export const uploadMultipleFiles = async (files, userId) => {
 
     const savedMedia = await saveMedia(mediaData)
 
-    const signedUrl = await generateSignedUrl(savedMedia._id)
+    const signedUrl = await generateSignedUrl(clientId, savedMedia._id)
 
     uploadedMedia.push({ ...savedMedia.toObject(), url: signedUrl })
   }

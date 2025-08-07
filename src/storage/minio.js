@@ -27,19 +27,24 @@ export const createBucketIfNotExists = async () => {
   const bucketExists = await minioClient.bucketExists(env.MINIO_BUCKET_NAME)
   if (!bucketExists) {
     await minioClient.makeBucket(env.MINIO_BUCKET_NAME)
-    await minioClient.setBucketPolicy(env.MINIO_BUCKET_NAME)
   }
 }
 
-export const uploadToMinio = async (file, objectName, bucketName = env.MINIO_BUCKET_NAME) => {
-  await minioClient.putObject(bucketName, objectName, file.buffer, {
+export const uploadToMinio = async (clientId, file, objectName, bucketName = env.MINIO_BUCKET_NAME) => {
+  const finalObjectName = `${clientId}/raw/${objectName}`
+  await minioClient.putObject(bucketName, finalObjectName, file.buffer, {
     'Content-Type': file.mimetype,
   })
-  return `${env.MINIO_PUBLIC_URL}/${bucketName}/${objectName}`
+  return `${env.MINIO_PUBLIC_URL}/${bucketName}/${finalObjectName}`
 }
 
-export const generateSignedUrl = async (objectName, expirySeconds = 300, bucketName = env.MINIO_BUCKET_NAME) => {
-  const url = await minioClient.presignedGetObject(bucketName, objectName, expirySeconds)
+export const generateSignedUrl = async (clientId, objectName, expirySeconds = 300, bucketName = env.MINIO_BUCKET_NAME) => {
+  var finalObjectName = `${clientId}/processed/${objectName}`
+  const fileExists = await minioClient.statObject(bucketName, finalObjectName).then(() => true).catch(() => false)
+  if (!fileExists) {
+    finalObjectName = `${clientId}/raw/${objectName}`
+  }
+  const url = await minioClient.presignedGetObject(bucketName, finalObjectName, expirySeconds)
   return url
 }
 
