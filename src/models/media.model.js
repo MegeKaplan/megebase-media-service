@@ -10,6 +10,15 @@ const mediaSchema = new mongoose.Schema({
   blurhash: { type: String },
   status: { type: String, enum: ['pending', 'processed', 'failed', 'deleted'], default: 'pending', index: true },
   clientId: { type: String, required: true, index: true },
+  formats: { raw: { type: String }, processed: { type: [String] } },
+  resolutions: { type: [Number], default: [480] },
+  processingConfig: {
+    type: Object,
+    properties: {
+      image: { type: Object },
+      video: { type: Object },
+    },
+  },
 }, {
   timestamps: true,
   versionKey: false,

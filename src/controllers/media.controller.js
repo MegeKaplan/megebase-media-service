@@ -1,4 +1,4 @@
-import { getMediaById, uploadMultipleFiles } from '../services/media.service.js'
+import { getMediaById, uploadMultipleFiles, getSignedPlaylistContent } from '../services/media.service.js'
 
 export const getMedia = async (req, res) => {
   try {
@@ -29,5 +29,20 @@ export const uploadFiles = async (req, res) => {
     res.status(201).json(uploadedMedia)
   } catch (error) {
     res.status(500).json({ error: error.message || 'Internal Server Error' })
+  }
+}
+
+export const getSignedPlaylist = async (req, res) => {
+  const { mediaId } = req.params;
+  const clientId = req.clientId
+
+  try {
+    const playlistContent = await getSignedPlaylistContent(clientId, mediaId);
+    if (!playlistContent) return res.status(404).json({ error: 'Playlist not found' });
+
+    res.setHeader('Content-Type', 'application/vnd.apple.mpegurl');
+    res.send(playlistContent);
+  } catch (error) {
+    res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 }

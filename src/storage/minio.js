@@ -38,14 +38,12 @@ export const uploadToMinio = async (clientId, file, objectName, bucketName = env
   return `${env.MINIO_PUBLIC_URL}/${bucketName}/${finalObjectName}`
 }
 
-export const generateSignedUrl = async (clientId, objectName, expirySeconds = 300, bucketName = env.MINIO_BUCKET_NAME) => {
-  var finalObjectName = `${clientId}/processed/${objectName}`
-  const fileExists = await minioClient.statObject(bucketName, finalObjectName).then(() => true).catch(() => false)
-  if (!fileExists) {
-    finalObjectName = `${clientId}/raw/${objectName}`
-  }
-  const url = await minioClient.presignedGetObject(bucketName, finalObjectName, expirySeconds)
-  return url
+export const generateSignedUrl = async (objectPath, expirySeconds = 300, bucketName = env.MINIO_BUCKET_NAME) => {
+  return await minioClient.presignedGetObject(bucketName, objectPath, expirySeconds)
+}
+
+export const checkObjectExists = async (objectPath, bucketName = env.MINIO_BUCKET_NAME) => {
+  return await minioClient.statObject(bucketName, objectPath).then(() => true).catch(() => false)
 }
 
 export const initMinio = async () => {

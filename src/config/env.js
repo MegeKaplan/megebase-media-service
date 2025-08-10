@@ -6,6 +6,9 @@ export const env = {
   // Port
   PORT: process.env.PORT || 3000,
 
+  // Backend URL
+  BACKEND_URL: process.env.BACKEND_URL || `http://localhost:${process.env.PORT || 3000}`,
+
   // MinIO
   MINIO_ENDPOINT: process.env.MINIO_ENDPOINT || 'localhost',
   MINIO_PORT: process.env.MINIO_PORT || 9000,
