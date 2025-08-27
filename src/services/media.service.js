@@ -60,9 +60,13 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
 
     const savedMedia = await saveMedia(mediaData)
 
-    const objectPath = await generateObjectPath(clientId, savedMedia)
-
-    const signedUrl = await generateSignedUrl(objectPath)
+    if (isVideo(savedMedia.mimetype)) {
+      savedMedia.url = await generateObjectPath(clientId, savedMedia);
+    } else {
+      const objectPath = await generateObjectPath(clientId, savedMedia);
+      const signedUrl = await generateSignedUrl(objectPath);
+      savedMedia.url = signedUrl;
+    }
 
     publishMessage('media', 'file', 'uploaded', {
       clientId,
@@ -75,7 +79,7 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
       processingConfig: savedMedia.processingConfig,
     })
 
-    uploadedMedia.push({ ...savedMedia.toObject(), url: signedUrl })
+    uploadedMedia.push({ ...savedMedia.toObject(), url: savedMedia.url })
   }
 
   return uploadedMedia
