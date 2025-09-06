@@ -22,4 +22,10 @@ export const env = {
 
   // RabbitMQ
   RABBITMQ_URL: process.env.RABBITMQ_URL || 'amqp://localhost',
+
+  // Google Cloud
+  GCP_PROJECT_ID: process.env.GCP_PROJECT_ID || 'megebase',
+  GCP_BUCKET_NAME: process.env.GCP_BUCKET_NAME || 'megebase',
+  GCP_REGION: process.env.GCP_REGION || 'eu-west1',
+  GCP_SERVICE_ACCOUNT_KEY_PATH: process.env.GCP_SERVICE_ACCOUNT_KEY_PATH || './src/config/gcp-key.json',
 }

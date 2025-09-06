@@ -1,14 +1,13 @@
 import { nanoid } from 'nanoid'
 import { uploadToStorage } from '../storage/index.js'
 import { findMediaById, saveMedia } from '../repositories/media.repository.js'
-import { generateSignedUrl } from '../storage/minio.js'
+import { generateSignedUrl } from '../storage/gcs.js'
 import { generateBlurhash } from '../utils/blurhash.js'
 import { publishMessage } from '../messaging/rabbitmq.js'
 import { generateObjectName, getFileExtension, isImage, isVideo } from '../utils/file.js'
 import { extension } from 'mime-types'
 import { generateProcessingConfig } from '../utils/processing.js'
 import { generateObjectPath } from '../utils/path.js'
-import { env } from '../config/env.js'
 import { generateSignedPlaylist } from '../utils/hls.js'
 
 export const getMediaById = async (clientId, mediaId) => {

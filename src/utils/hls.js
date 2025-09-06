@@ -1,4 +1,4 @@
-import { checkObjectExists, generateSignedUrl } from '../storage/minio.js';
+import { checkObjectExists, generateSignedUrl } from '../storage/gcs.js';
 
 export const generateSignedPlaylist = async (clientId, mediaId) => {
   const indexObjectPath = `${clientId}/processed/${mediaId}/480p/index.m3u8`;

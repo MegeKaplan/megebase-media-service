@@ -1,4 +1,4 @@
-import { checkObjectExists, generateSignedUrl } from "../storage/minio.js";
+import { checkObjectExists, generateSignedUrl } from "../storage/gcs.js";
 import { isVideo } from "./file.js";
 import { env } from "../config/env.js";
 
