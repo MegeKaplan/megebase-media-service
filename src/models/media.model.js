@@ -3,6 +3,13 @@ import mongoose from 'mongoose'
 const mediaSchema = new mongoose.Schema({
   _id: { type: String, required: true, unique: true },
   url: { type: String, required: true, unique: true },
+  urls: {
+    type: Object,
+    properties: {
+      raw: { type: String },
+      processed: { type: String },
+    },
+  },
   uploadedBy: { type: String, required: true, index: true },
   originalname: { type: String },
   mimetype: { type: String },

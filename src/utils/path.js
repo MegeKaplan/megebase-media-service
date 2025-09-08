@@ -24,3 +24,25 @@ export const generateObjectPath = async (clientId, media) => {
 
   return objectPath;
 }
+
+export const generateObjectPaths = async (clientId, media) => {
+  const rawPath = `${clientId}/raw/${media._id}.${media.formats.raw}`;
+  const rawUrl = await generateSignedUrl(rawPath);
+
+  let processedUrl = null;
+
+  if (isVideo(media.mimetype)) {
+    const hlsPath = `${clientId}/processed/${media._id}/${media.resolutions[0]}p/index.m3u8`;
+
+    if (await checkObjectExists(hlsPath)) {
+      processedUrl = `${env.BACKEND_URL}/media/${media._id}/playlist`;
+    }
+  } else {
+    const processedPath = `${clientId}/processed/${media._id}/${media._id}.${media.formats.processed?.[0]}`;
+    if (media.formats.processed?.length > 0 && await checkObjectExists(processedPath)) {
+      processedUrl = await generateSignedUrl(processedPath);
+    }
+  }
+
+  return { raw: rawUrl, processed: processedUrl };
+}

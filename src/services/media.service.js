@@ -7,20 +7,15 @@ import { publishMessage } from '../messaging/rabbitmq.js'
 import { generateObjectName, getFileExtension, isImage, isVideo } from '../utils/file.js'
 import { extension } from 'mime-types'
 import { generateProcessingConfig } from '../utils/processing.js'
-import { generateObjectPath } from '../utils/path.js'
+import { generateObjectPaths } from '../utils/path.js'
 import { generateSignedPlaylist } from '../utils/hls.js'
 
 export const getMediaById = async (clientId, mediaId) => {
   const media = await findMediaById(mediaId)
   if (!media) return null
 
-  if (isVideo(media.mimetype)) {
-    media.url = await generateObjectPath(clientId, media);
-  } else {
-    const objectPath = await generateObjectPath(clientId, media);
-    const signedUrl = await generateSignedUrl(objectPath);
-    media.url = signedUrl;
-  }
+  const urls = await generateObjectPaths(clientId, media)
+  media.urls = urls
 
   return media
 }
@@ -59,13 +54,8 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
 
     const savedMedia = await saveMedia(mediaData)
 
-    if (isVideo(savedMedia.mimetype)) {
-      savedMedia.url = await generateObjectPath(clientId, savedMedia);
-    } else {
-      const objectPath = await generateObjectPath(clientId, savedMedia);
-      const signedUrl = await generateSignedUrl(objectPath);
-      savedMedia.url = signedUrl;
-    }
+    const urls = await generateObjectPaths(clientId, savedMedia)
+    savedMedia.urls = urls
 
     publishMessage('media', 'file', 'uploaded', {
       clientId,
@@ -78,7 +68,7 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
       processingConfig: savedMedia.processingConfig,
     })
 
-    uploadedMedia.push({ ...savedMedia.toObject(), url: savedMedia.url })
+    uploadedMedia.push({ ...savedMedia.toObject(), urls: savedMedia.urls })
   }
 
   return uploadedMedia
