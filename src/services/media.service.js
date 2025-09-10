@@ -30,7 +30,7 @@ export const uploadMultipleFiles = async (clientId, files, userId) => {
 
     const rawObjectName = generateObjectName(id, rawFileExtension)
 
-    const url = await uploadToStorage(clientId, file, rawObjectName)
+    const url = await uploadToStorage(clientId, file, `${userId}/${rawObjectName}`)
 
     const blurhash = file.mimetype.startsWith('image/') ? await generateBlurhash(file.buffer) : null
 
